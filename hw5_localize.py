@@ -133,6 +133,8 @@ def precomputeSensorProbability(drow, dcol, probProximal):
 #  Main Code
 #
 def main():
+    startpos = (12, 26)
+    path = [startpos]
     # Initialize the figure.
     visual = Visualization(walls)
 
@@ -141,7 +143,7 @@ def main():
     # part (a)
     # robot  = Robot(walls)
     # Part (b)
-    robot = Robot(walls, row=12, col=26)
+    robot = Robot(walls, row=startpos[0], col=startpos[1])
     # Part (c)
     # robot = Robot(walls, row=12, col=26, probProximal = [0.9, 0.6, 0.3])
     # Part (d), (e)
@@ -188,7 +190,7 @@ def main():
     # Loop continually.
     while True:
         # Show the current belief.  Also show the actual position.
-        visual.Show(bel, robot.Position())
+        visual.Show(bel, path, robot.Position())
 
         # Get the command key to determine the direction.
         while True:
@@ -199,9 +201,13 @@ def main():
             elif (key == 'j'):  (drow, dcol) = ( 0, -1) ; break
             elif (key == 'k'):  (drow, dcol) = ( 0,  1) ; break
 
+        currrow = robot.Position()[0]
+        currcol = robot.Position()[1]
+        path.append((currrow+drow, currcol+dcol))
+        print(path)
+
         # Move the robot in the simulation.
         robot.Command(drow, dcol)
-
 
         # Compute a prediction.
         prd = computePrediction(bel, drow, dcol, probCmd)
