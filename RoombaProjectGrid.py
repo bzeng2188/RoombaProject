@@ -18,31 +18,32 @@ w = ['xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
      'x                                               x',
      'x                                               x',
      'x                                               x',
-     'x                  xxxxxxxxxxx                  x',
+     'x                  XxxxxxxxxxX                  x',
      'x                   xxxxxxxxx                   x',
-     'x      xxxxxxxx      xxxxxxx                    x',
+     'x      XxxxxxxX      xxxxxxx                    x',
      'x     xxxxxxxxxx      xxxxx                     x',
      'x    xxxxxxxxxxxx      xxx                      x',
-     'x   xxxxxxxxxxxxxx      x                       x',
+     'x   XxxxxxxxxxxxxX      X                       x',
      'x                                               x',
      'x                                               x',
      'x                                               x',
      'x                                               x',
-     'x                             xxxxxxxxx         x',
+     'x                             XxxxxxxxX         x',
      'x                            xxxxxxxxx          x',
      'x                           xxxxxxxxx           x',
      'x                          xxxxxxxxx            x',
-     'x                         xxxxxxxxx             x',
-     'x                                              xx',
-     'x                                             xxx',
-     'x            x                               xxxx',
-     'x           xxx                             xxxxx',
-     'x          xxxxx                           xxxxxx',
+     'x                         XxxxxxxxX             x',
+     'x                                               x',
+     'x                                               x',
+     'x            X                                  x',
+     'x           xxx                                 x',
+     'x          XxxxX                                x',
      'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx']
 
-walls = np.array([[1.0*(c == 'x') for c in s] for s in w])
+walls = np.array([[1.0*(c == 'x' or c == "X") for c in s] for s in w])
 rows  = np.size(walls, axis=0)
 cols  = np.size(walls, axis=1)
+vertices = np.array([[1.0*(c == "X") for c in s] for s in w])
 
 
 #
