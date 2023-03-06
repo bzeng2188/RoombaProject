@@ -7,8 +7,9 @@
 #   Places to edit are marked as TODO.
 #
 import numpy as np
-
+import time
 from HelperFunctions import Visualization, Robot
+from CoveragePathPlannerAlgorithm import *
 
 
 #
@@ -157,6 +158,82 @@ def trapdecomp():
 
     return lines, cells
 
+def TraverseCurrentCell(cellvertices, walls, startposition, Robot):
+    
+    # Traverse to corner of a cell
+    returnpath = Dijkstra(startposition, cellvertices[0], walls)
+    
+    # Verify that we are in the corner of a cell
+    if returnpath[-1] != cellvertices[0]:
+        print("ERROR, POSITION IS NOT CORRECT, I AM NOT AT THE CORNER OF A CELL")
+    
+    # If command = 1, go up. If command = -1, go down. If command = 0, cell complete. 
+    print("Starting at the location", returnpath[-1])
+    tempvertices = []
+    for vertex in cellvertices:
+            tempvertices.append(vertex)
+    if returnpath[-1] in tempvertices:
+        tempvertices.pop(tempvertices.index(returnpath[-1]))
+    repeat = True
+    while repeat:
+        print("Getting stuck!!!!")
+        newpos = returnpath[-1]
+        if walls[newpos[0] + 1, newpos[1]] == 1:
+            command = -1
+            print('Traversing Downwards')
+            repeat = False
+        elif walls[newpos[0] - 1, newpos[1]] == 1:
+            command = 1
+            print('Traversing Upwards')
+            repeat = False
+        elif walls[newpos[0], newpos[1] - 1] == 1:
+            addedpos = (newpos[0], newpos[1] + 1)
+            returnpath.append(addedpos)
+            print('Traversing Rightwards')
+    # While cell is not complete... checked based on whether robot has reached all vertices of the cell
+
+    right = False
+    while command != 0:
+        newpos = returnpath[-1]
+        addedpos = (newpos[0] + command, newpos[1])
+        returnpath.append(addedpos)
+        currpos = returnpath[-1]
+        print("Checkpoint vertices I need to traverse through include:", tempvertices)
+        print("Current virtual position is:", currpos)
+        if right == True:
+            if walls[currpos[0], currpos[1] + 1] == 0:
+                addedpos = (currpos[0], currpos[1] + 1)
+                returnpath.append(addedpos)
+                newpos = returnpath[-1]
+                print('Traversing Rightwards, after running into a wall')
+                right = False
+        if currpos in tempvertices:
+            tempvertices.pop(tempvertices.index(currpos))
+        if len(tempvertices) == 0:
+            command = 0
+            break
+        print(currpos[0] + command)
+        print(command)
+        print(currpos[1])
+        if walls[currpos[0] + command, currpos[1]] == 1:
+            right = False
+            if walls[currpos[0], currpos[1] + 1] == 0:
+                addedpos = (currpos[0], currpos[1] + 1)
+                returnpath.append(addedpos)
+                newpos = returnpath[-1]
+                print('Traversing Rightwards, after running into a wall')
+                right = True
+            if walls[newpos[0] + command, newpos[1]] == 1:
+                command *= -1
+                print('Reversing Traverse Direction')
+            else:
+                print("Capable of continuining traverse direction, reaching end first before turning around")
+        else:
+            print("Continuining in Original Direction")
+    
+    return returnpath
+
+
 # 
 #
 #  Main Code
@@ -223,20 +300,31 @@ def main():
         # Show the current belief.  Also show the actual position.
         visual.Show(bel, path, vertices, lines, robot.Position())
 
+        traversepath = TraverseCurrentCell([(23,20),(6,20),(9,23),(23,23)], walls, robot.Position(), robot)
+        print(traversepath)
+        for node in traversepath:
+            drow = node[0] - robot.Position()[0]
+            dcol = node[1] - robot.Position()[1]
+            print(drow)
+            print(dcol)
+            path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
+            robot.Command(drow, dcol)
+            visual.Show(bel, path, vertices, lines, robot.Position())
+            time.sleep(0.2)
+
         # Get the command key to determine the direction.
-        while True:
-            key = input("Cmd (q=quit, i=up, m=down, j=left, k=right) ?")
-            if   (key == 'q'):  return
-            elif (key == 'i'):  (drow, dcol) = (-1,  0) ; break
-            elif (key == 'm'):  (drow, dcol) = ( 1,  0) ; break
-            elif (key == 'j'):  (drow, dcol) = ( 0, -1) ; break
-            elif (key == 'k'):  (drow, dcol) = ( 0,  1) ; break
+        # while True:
+        #     key = input("Cmd (q=quit, i=up, m=down, j=left, k=right) ?")
+        #     if   (key == 'q'):  return
+        #     elif (key == 'i'):  (drow, dcol) = (-1,  0) ; break
+        #     elif (key == 'm'):  (drow, dcol) = ( 1,  0) ; break
+        #     elif (key == 'j'):  (drow, dcol) = ( 0, -1) ; break
+        #     elif (key == 'k'):  (drow, dcol) = ( 0,  1) ; break
 
         currrow = robot.Position()[0]
         currcol = robot.Position()[1]
         if walls[currrow + drow][currcol + dcol] != 1:
             path.append((currrow+drow, currcol+dcol))
-        print(path)
 
         # Move the robot in the simulation.
         robot.Command(drow, dcol)
@@ -257,7 +345,6 @@ def main():
         bel = updateBelief(bel, probRight, robot.Sensor( 0,  1))
         bel = updateBelief(bel, probDown,  robot.Sensor( 1,  0))
         bel = updateBelief(bel, probLeft,  robot.Sensor( 0, -1))
-
 
 if __name__== "__main__":
     main()

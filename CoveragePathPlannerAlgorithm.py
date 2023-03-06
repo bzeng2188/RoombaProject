@@ -10,60 +10,85 @@ from HelperFunctions import Visualization, Robot
 import bisect
 import matplotlib.pyplot as plt
 
-def TraverseCurrentCell(cellvertices, walls, path, Robot):
-    
-    # Traverse to corner of a cell
-    while Robot.Position() != cellvertices[0]:
-        currpos = Robot.Position()
-        drow = (cellvertices[0][0] - currpos[0])/abs(cellvertices[0][0] - currpos[0])
-        dcol = (cellvertices[0][1] - currpos[1])/abs(cellvertices[0][1] - currpos[1])
-        Robot.Command(drow, dcol)
-        path.append((currpos[0] + drow, currpos[1] + dcol))
-    
-    # Verify that we are in the corner of a cell
-    if Robot.Position() != cellvertices[0]:
-        print("ERROR, POSITION IS NOT CORRECT, I AM NOT AT THE CORNER OF A CELL")
-    
-    # If command = 1, go up. If command = -1, go down. If command = 0, cell complete. 
-    repeat = True
-    while repeat:
-        currpos = Robot.Position()
-        if walls[newpos[0] + 1, newpos[1]] == 1:
-            command = -1
-            print('Traversing Downwards')
-            repeat = False
-        elif walls[newpos[0] - 1, newpos[1]] == 1:
-            command = 1
-            print('Traversing Upwards')
-            repeat = False
-        elif walls[newpos[0], newpos[1] - 1] == 1:
-            Robot.Command(0,1)
-            path.append((currpos[0], currpos[1] + 1))
-            print('Traversing Rightwards')
-    # While cell is not complete... checked based on whether robot has reached all vertices of the cell
-    tempvertices = []
-    for vertex in cellvertices:
-            tempvertices.append(vertex)
+class State:
+    WALL      = -1      # Not a legal state - just to indicate the wall
+    UNKNOWN   =  0      # "Air"
+    ONDECK    =  1      # "Leaf"
+    PROCESSED =  2      # "Trunk"
+    PATH      =  3      # Processed and later marked as on path to goal
 
-    while command != 0:
-        Robot.Command(command, 0)
-        newpos = Robot.Position()
-        path.append(newpos)
-        currpos = Robot.Position()
-        if currpos in tempvertices:
-            tempvertices.pop(currpos)
-        if len(tempvertices) == 0:
-            command = 0
-            break 
-        if walls[newpos[0] + command, newpos[1]] == 1:
-            Robot.Command(0,1)
-            print('Traversing Rightwards, after running into a wall')
-            path.append((currpos[0], currpos[1] + 1))
-            newpos = Robot.Position()
-            if walls[newpos[0] + command, newpos[1]] == 1:
-                command *= -1
-                print('Reversing Traverse Direction')
-            else:
-                print("Capable of continuining traverse direction, reaching end first before turning around")
-        else:
-            print("Continuining in Original Direction")
+    def __init__(self, row, col):
+        # Save the location.
+        self.row = row
+        self.col = col
+
+        # Clear the status and costs.
+        self.status = State.UNKNOWN
+
+        # Clear the references.
+        self.parent    = None
+        self.neighbors = []
+    
+    def Position(self):
+         return (self.row, self.col)
+    
+
+def Dijkstra(start, goal, walls):
+    print("Traversing between", start, " and", goal)
+    M = 25
+    N = 49
+    states = [[State(m,n) for n in range(N)] for m in range(M)]
+
+    for row in range(M):
+        for col in range(N):
+            if walls[row][col] == 1:
+                states[row][col].status = State.WALL
+                
+    for m in range(M):
+        for n in range(N):
+            if not states[m][n].status == State.WALL:
+                for (m1, n1) in [(m-1,n), (m+1,n), (m,n-1), (m,n+1)]:
+                    if not states[m1][n1].status == State.WALL:
+                        states[m][n].neighbors.append(states[m1][n1])
+    
+    start = states[start[0]][start[1]]
+    goal  = states[goal[0]][goal[1]]
+
+    print("Starting Dijkstra's")
+
+    onDeck = []
+    onDeck.append(start)
+    while True:
+        current = onDeck.pop(0)
+        # Process each neighbor of the current state
+        for neighbor in current.neighbors:
+            # Only add a new neighbor if it is not a wall, it is not already processed, and it is not already ondeck.
+            if neighbor.status != State.WALL and neighbor.status != State.PROCESSED and neighbor.status != State.ONDECK:
+                neighbor.parent = current
+                # If unknown, add the unknown neighbor as as new entry in onDeck
+                if neighbor.status == State.UNKNOWN:
+                    neighbor.status = State.ONDECK
+                    # For Dijkstra's, we use .append for FIFO. For A*, we use bisect.insort to sort list as we go. In this case, we are doing A*
+                    # onDeck.append(neighbor)
+                    onDeck.append(neighbor)
+
+        if current == goal:
+            current.status = State.PROCESSED
+            break
+        current.status = State.PROCESSED
+    
+    print("Dijkstra's path calculated. Attempting to traverse")
+
+    currentstate = goal
+    temppath = []
+    returnpath = []
+    while currentstate != start:
+        currentstate.status = State.PATH
+        temppath.append((currentstate.row, currentstate.col))
+        currentstate = currentstate.parent
+    start.status = State.PATH
+
+    while len(temppath) > 0:
+        returnpath.append(temppath.pop(-1))
+    
+    return returnpath
