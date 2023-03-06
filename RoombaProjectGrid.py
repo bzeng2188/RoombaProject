@@ -45,7 +45,6 @@ rows  = np.size(walls, axis=0)
 cols  = np.size(walls, axis=1)
 vertices = np.array([[1.0*(c == "X") for c in s] for s in w])
 
-
 #
 #  Prediction
 #
@@ -191,7 +190,7 @@ def main():
     # Loop continually.
     while True:
         # Show the current belief.  Also show the actual position.
-        visual.Show(bel, path, robot.Position())
+        visual.Show(bel, path, vertices, robot.Position())
 
         # Get the command key to determine the direction.
         while True:
