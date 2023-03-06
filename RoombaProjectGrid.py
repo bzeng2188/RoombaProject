@@ -8,7 +8,7 @@
 #
 import numpy as np
 
-from hw5_utilities import Visualization, Robot
+from HelperFunctions import Visualization, Robot
 
 
 #
