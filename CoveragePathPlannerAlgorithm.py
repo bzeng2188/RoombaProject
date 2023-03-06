@@ -47,7 +47,7 @@ def TraverseCurrentCell(cellvertices, walls, path, Robot):
 
     while command != 0:
         Robot.Command(command, 0)
-        newpos = Robot.Position
+        newpos = Robot.Position()
         path.append(newpos)
         currpos = Robot.Position()
         if currpos in tempvertices:
@@ -56,21 +56,14 @@ def TraverseCurrentCell(cellvertices, walls, path, Robot):
             command = 0
             break 
         if walls[newpos[0] + command, newpos[1]] == 1:
-            rightmove = False
-            if walls[newpos[0] + command, newpos[1]] == 1 and walls[newpos[0], newpos[1] - 1] == 1:
-                Robot.Command(0,1)
-                path.append((currpos[0], currpos[1] + 1))
-                print('Traversing Rightwards, after running into a wall')
-                rightmove = True
-            if rightmove == False:
+            Robot.Command(0,1)
+            print('Traversing Rightwards, after running into a wall')
+            path.append((currpos[0], currpos[1] + 1))
+            newpos = Robot.Position()
+            if walls[newpos[0] + command, newpos[1]] == 1:
                 command *= -1
-            print('Reversing Traverse Direction')
+                print('Reversing Traverse Direction')
+            else:
+                print("Capable of continuining traverse direction, reaching end first before turning around")
         else:
             print("Continuining in Original Direction")
-
-
-            
-
-        
-
-
