@@ -155,8 +155,140 @@ def trapdecomp():
                 lines.append((row,v[1]))
 
     # calculates cells
+    cells = []
+    grid = walls
+    for l in lines:
+        grid[l[0]][l[1]] = 2
+    # inside grid, 0 = free space, 1 = wall, 2 = line, 3 = other cell
+    incompleteCell = True
+    incompleteGrid = True
+    i = 1
+    j = 1
+
+    # while incompleteGrid:
+    #     i = 1
+    #     j = 1
+    while incompleteCell:
+        cell = []
+        # select top left of cell
+        if grid[i][j] == 0:
+            cell.append((i,j))
+
+            # go down until find a cell that is free
+            for row in range(i, rows):
+                if grid[row][j] == 1:
+                    cell.append((row-1,j)) # select bottom left of cell
+                    break
+        
+        # defined a line
+        # sweep line to the right until anything along the line sees a turqoise line or runs into a wall
+        # look at top endpoint
+            # if top endpoint in wall, move down until free
+            # elif top endpoint can move up, move up until blocked
+            # else leave it alone
+        # look at bottom endpoint
+            # if bottom endpoint in wall, move up until free
+            # elif bottom endpoint can move down, move down until blocked
+            # else leave it alone
+
+        c = j
+        for col in range(j,cols):
+            for row in range(cell[0][0], cell[1][0]+1):
+                if grid[row][j+1] == 1 or grid[row][j+1] == 3: # special case: vertical line
+                    incompleteCell = False # break out of second while loop
+
+                if grid[row][col] == 1 or grid[row][col] == 3: # ran into wall or other cell
+                    print("hi")
+                    c = col-1
+                    break
+                elif grid[row][col] == 2: # ran into line
+                    print("helo")
+                    c = col
+                    break
+
+        topright = (cell[0][0], c)
+        bottomright = (cell[1][0], c)
+
+        if grid[topright[0]][c] == 1: # topright in an obstacle
+            tempr = topright[0]
+            while grid[tempr][c] == 1 or grid[tempr][c] == 3:
+                tempr -= 1 # move topright down until free
+            topright = (tempr,c)
+        elif grid[topright[0] + 1][c] == 0 or grid[topright[0]][c] == 2: # topright can move up
+            tempr = topright[0]
+            while grid[tempr][c] == 0 or grid[tempr][c] == 2:
+                tempr += 1 # move topright up until blocked
+            tempr -= 1
+            topright = (tempr,c)
+
+        if grid[bottomright[0]][c] == 1: # bottomright in an obstacle
+            tempr = bottomright[0]
+            while grid[tempr][c] == 1 or grid[tempr][c] == 3:
+                tempr += 1 # move bottomright up until free
+            bottomright = (tempr,c)
+        elif grid[bottomright[0]][c] == 0 or grid[bottomright[0]][c] == 2: # topright can move up
+            tempr = bottomright[0]
+            while grid[tempr][c] == 0 or grid[tempr][c] == 2:
+                tempr -= 1 # move bottomright down until blocked
+            tempr += 1
+            bottomright = (tempr,c)
+
+        cell.append(topright)
+        cell.append(bottomright)
+
+        # make vertical lines of cell have values of 3 in grid
+        for row in range(cell[0][0], cell[1][0]+1):
+            grid[row][cell[0][1]] = 3
+        for row in range(cell[2][0], cell[3][0]+1):
+            grid[row][cell[2][1]] = 3
+
+        cells.append(cell)
+        print(cells)
+        incompleteCell = False
+        
+        # curr = cell[1] # bottom left corner
+        # r = curr[0]
+        # c = curr[1]
+        # if grid[curr[0] - 1][curr[1] + 1] != 1: # should move in a downward diagonal line
+        #     rdir = -1
+        # elif grid[curr[0]][curr[1] + 1] != 1: # should move directly to the right
+        #     if grid[cell[0][0]][cell[0][1] + 1] != 1:
+        #         rdir = 0
+        #     else: # special case were just a vertical line
+        #         break
+        # elif grid[curr[0] + 1][curr[1] + 1] != 1: # should move in an upward diagonal line
+        #     rdir = 1
+        # else:
+        #     break
+
+        # while grid[r][c] == 0: # keep going until see line or wall
+        #     r += rdir
+        #     c += 1
+        # if grid[r][c] == 1: # if see wall, move diagonally up one cell and make that the bottom right corner
+        #     cell.append((r-rdir,c-1))
+        # elif grid[r][c] == 2: # if see line, make that the bottom right corner
+        #     cell.append((r,c))
+
+        # curr = cell[2] # bottom right corner
+        # # go up until find a cell that is free
+        # for row in range(curr[0],0,-1):
+        #     if grid[row][curr[1]] == 1:
+        #         cell.append((row+1,curr[1])) # select top right of cell
+        #         break
+
+        # # select next top left corner
+        # curr = cell[len(cell)-1] # look at bottomright corner
+        # for col in range(curr[1],cols):
+        #     for row in range(0, rows):
+        #         if grid[row][col] != 1 and grid[row][col] != 3:
+        #             i = row
+        #             j = col
+        #         else:
+        #             # NEED TO FIX THIS, HAVE TO MOVE BACK TO BEGINNING AND DOWN???
+        #             incompleteGrid = False
 
     return lines, cells
+
 
 def TraverseCurrentCell(cellvertices, walls, startposition, Robot):
     
@@ -298,7 +430,7 @@ def main():
     # Loop continually.
     while True:
         # Show the current belief.  Also show the actual position.
-        visual.Show(bel, path, vertices, lines, robot.Position())
+        visual.Show(bel, path, vertices, lines, cells, robot.Position())
 
         traversepath = TraverseCurrentCell([(23,20),(6,20),(9,23),(23,23)], walls, robot.Position(), robot)
         print(traversepath)
