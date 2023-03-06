@@ -204,7 +204,8 @@ def main():
 
         currrow = robot.Position()[0]
         currcol = robot.Position()[1]
-        path.append((currrow+drow, currcol+dcol))
+        if walls[currrow + drow][currcol + dcol] != 1:
+            path.append((currrow+drow, currcol+dcol))
         print(path)
 
         # Move the robot in the simulation.
