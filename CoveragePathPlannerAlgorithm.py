@@ -42,27 +42,34 @@ def TraverseCurrentCell(cellvertices, walls, path, Robot):
             print('Traversing Rightwards')
     # Determine new robot position
     newpos = Robot.Position()
-    # While cell is not complete...
+    # While cell is not complete... checked based on whether robot has reached all vertices of the cell
+    maxvertex = -1
+    tempvertices = []
+    for vertex in cellvertices:
+            tempvertices.append(vertex)
+            if vertex[1] >= maxvertex:
+                maxvertex = vertex[1]
     while command != 0:
         Robot.Command(command, 0)
-        repeat = True
-        while repeat:
-            currpos = Robot.Position()
-            if walls[newpos[0] + command, newpos[1]] == 1:
-                rightmove = False
-                if walls[newpos[0] + command, newpos[1]] == 1 and walls[newpos[0], newpos[1] - 1] == 1:
-                    Robot.Command(0,1)
-                    path.append((currpos[0], currpos[1] + 1))
-                    print('Traversing Rightwards, after running into a wall')
-                    rightmove = True
-                if rightmove == False:
-                    command *= -1
-                print('Reversing Traverse Direction')
-                repeat = False
-            else:
-                print("Continuining in Original Direction")
-                repeat = False
-            
+        currpos = Robot.Position()
+        if currpos in tempvertices:
+            tempvertices.pop(currpos)
+        if len(tempvertices) == 0:
+            command = 0
+            break 
+        if walls[newpos[0] + command, newpos[1]] == 1:
+            rightmove = False
+            if walls[newpos[0] + command, newpos[1]] == 1 and walls[newpos[0], newpos[1] - 1] == 1:
+                Robot.Command(0,1)
+                path.append((currpos[0], currpos[1] + 1))
+                print('Traversing Rightwards, after running into a wall')
+                rightmove = True
+            if rightmove == False:
+                command *= -1
+            print('Reversing Traverse Direction')
+        else:
+            print("Continuining in Original Direction")
+
 
             
 
