@@ -127,6 +127,35 @@ def precomputeSensorProbability(drow, dcol, probProximal):
     # Return the computed grid.
     return prob
 
+def trapdecomp():
+    lines = [] #stores the coordinates of the lines that separate the cells
+    vert = [] # stores the coordinates of each obstacle's vertices
+    cells = [] # stores the cells, where each cell is an array of the coordinates of the cell's vertices
+    
+    # calculates vert from global variable vertics
+    for i in range(len(vertices)):
+        for j in range(len(vertices[i])):
+            if vertices[i][j] == 1:
+                vert.append((i,j))
+
+    # calculates lines
+    for v in vert:
+        # move up from vertex
+        for row in range(v[0]-1,0,-1):
+            if walls[row,v[1]] == 1:
+                break
+            else:
+                lines.append((row,v[1]))
+        # move down from vertex
+        for row in range(v[0]+1,rows):
+            if walls[row,v[1]] == 1:
+                break
+            else:
+                lines.append((row,v[1]))
+
+    # calculates cells
+
+    return lines, cells
 
 # 
 #
@@ -135,6 +164,8 @@ def precomputeSensorProbability(drow, dcol, probProximal):
 def main():
     startpos = (12, 26)
     path = [startpos]
+    lines, cells = trapdecomp()
+
     # Initialize the figure.
     visual = Visualization(walls)
 
@@ -190,7 +221,7 @@ def main():
     # Loop continually.
     while True:
         # Show the current belief.  Also show the actual position.
-        visual.Show(bel, path, vertices, robot.Position())
+        visual.Show(bel, path, vertices, lines, robot.Position())
 
         # Get the command key to determine the direction.
         while True:
