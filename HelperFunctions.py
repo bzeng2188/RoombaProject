@@ -92,7 +92,7 @@ class Visualization():
         # Clear the content and mark.  Then show with zeros.
         self.content = None
         self.mark    = None
-        self.Show(np.zeros((self.rows, self.cols)), [], [], [], [])
+        self.Show(np.zeros((self.rows, self.cols)), [], [], [])
 
     def Flush(self):
         # Show the plot.
@@ -114,7 +114,7 @@ class Visualization():
                                     horizontalalignment='center',
                                     zorder=1)
 
-    def Grid(self, prob, path, vert, lines, cells):
+    def Grid(self, prob, path, vert, lines):
         # Check the probability grid array size.
         assert (np.size(prob, axis=0) == self.rows), "Inconsistent num of rows"
         assert (np.size(prob, axis=1) == self.cols), "Inconsistent num of cols"
@@ -141,9 +141,7 @@ class Visualization():
                                 color[i,j,0:3] = np.array([0.8, 0.3, 0.3])
                     for l in lines:
                         color[l[0],l[1],0:3] = np.array([0.2, 0.5, 0.5])
-                    print(cells)
-                    # for c in cells:
-                    #     color[c[0],c[1],0:3] = np.array([0.8, 0.8, 0.8])
+                    
                     # p    = prob[row,col]
                     # pmin = 0.9 / self.spots
                     # if p == 0:
@@ -164,9 +162,9 @@ class Visualization():
                                         extent=[0, self.cols, self.rows, 0],
                                         zorder=0)
 
-    def Show(self, prob, path, vert, lines, cells, pos = None):
+    def Show(self, prob, path, vert, lines, pos = None):
         # Update the content.
-        self.Grid(prob, path, vert, lines, cells)
+        self.Grid(prob, path, vert, lines)
 
         # Potentially add the mark.
         if pos is not None:

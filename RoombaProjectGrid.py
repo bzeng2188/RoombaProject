@@ -155,97 +155,99 @@ def trapdecomp():
                 lines.append((row,v[1]))
 
     # calculates cells
-    cells = []
-    grid = walls
-    for l in lines:
-        grid[l[0]][l[1]] = 2
-    # inside grid, 0 = free space, 1 = wall, 2 = line, 3 = other cell
-    incompleteCell = True
-    incompleteGrid = True
-    i = 1
-    j = 1
+    # cells = []
+    # grid = walls
+    # for l in lines:
+    #     grid[l[0]][l[1]] = 2
+    # # inside grid, 0 = free space, 1 = wall, 2 = line, 3 = other cell
+    # incompleteCell = True
+    # incompleteGrid = True
+    # i = 1
+    # j = 1
 
-    # while incompleteGrid:
-    #     i = 1
-    #     j = 1
-    while incompleteCell:
-        cell = []
-        # select top left of cell
-        if grid[i][j] == 0:
-            cell.append((i,j))
+    # # while incompleteGrid:
+    # #     i = 1
+    # #     j = 1
+    # while incompleteCell:
+    #     cell = []
+    #     # select top left of cell
+    #     if grid[i][j] == 0:
+    #         cell.append((i,j))
 
-            # go down until find a cell that is free
-            for row in range(i, rows):
-                if grid[row][j] == 1:
-                    cell.append((row-1,j)) # select bottom left of cell
-                    break
+    #         # go down until find a cell that is free
+    #         for row in range(i, rows):
+    #             if grid[row][j] == 1:
+    #                 cell.append((row-1,j)) # select bottom left of cell
+    #                 break
         
-        # defined a line
-        # sweep line to the right until anything along the line sees a turqoise line or runs into a wall
-        # look at top endpoint
-            # if top endpoint in wall, move down until free
-            # elif top endpoint can move up, move up until blocked
-            # else leave it alone
-        # look at bottom endpoint
-            # if bottom endpoint in wall, move up until free
-            # elif bottom endpoint can move down, move down until blocked
-            # else leave it alone
+    #     # defined a line
+    #     # sweep line to the right until anything along the line sees a turqoise line or runs into a wall
+    #     # look at top endpoint
+    #         # if top endpoint in wall, move down until free
+    #         # elif top endpoint can move up, move up until blocked
+    #         # else leave it alone
+    #     # look at bottom endpoint
+    #         # if bottom endpoint in wall, move up until free
+    #         # elif bottom endpoint can move down, move down until blocked
+    #         # else leave it alone
 
-        c = j
-        for col in range(j,cols):
-            for row in range(cell[0][0], cell[1][0]+1):
-                if grid[row][j+1] == 1 or grid[row][j+1] == 3: # special case: vertical line
-                    incompleteCell = False # break out of second while loop
+    #     c = j
+    #     for col in range(j,cols):
+    #         for row in range(cell[0][0], cell[1][0]+1):
+    #             if grid[row][j+1] == 1 or grid[row][j+1] == 3: # special case: vertical line
+    #                 incompleteCell = False # break out of second while loop
 
-                if grid[row][col] == 1 or grid[row][col] == 3: # ran into wall or other cell
-                    print("hi")
-                    c = col-1
-                    break
-                elif grid[row][col] == 2: # ran into line
-                    print("helo")
-                    c = col
-                    break
+    #             if grid[row][col] == 1 or grid[row][col] == 3: # ran into wall or other cell
+    #                 print("hi")
+    #                 c = col-1
+    #                 break
+    #             elif grid[row][col] == 2: # ran into line
+    #                 print("helo")
+    #                 c = col
+    #                 break
 
-        topright = (cell[0][0], c)
-        bottomright = (cell[1][0], c)
+    #     topright = (cell[0][0], c)
+    #     bottomright = (cell[1][0], c)
 
-        if grid[topright[0]][c] == 1: # topright in an obstacle
-            tempr = topright[0]
-            while grid[tempr][c] == 1 or grid[tempr][c] == 3:
-                tempr -= 1 # move topright down until free
-            topright = (tempr,c)
-        elif grid[topright[0] + 1][c] == 0 or grid[topright[0]][c] == 2: # topright can move up
-            tempr = topright[0]
-            while grid[tempr][c] == 0 or grid[tempr][c] == 2:
-                tempr += 1 # move topright up until blocked
-            tempr -= 1
-            topright = (tempr,c)
+    #     if grid[topright[0]][c] == 1: # topright in an obstacle
+    #         tempr = topright[0]
+    #         while grid[tempr][c] == 1 or grid[tempr][c] == 3:
+    #             tempr -= 1 # move topright down until free
+    #         topright = (tempr,c)
+    #     elif grid[topright[0] + 1][c] == 0 or grid[topright[0]][c] == 2: # topright can move up
+    #         tempr = topright[0]
+    #         while grid[tempr][c] == 0 or grid[tempr][c] == 2:
+    #             tempr += 1 # move topright up until blocked
+    #         tempr -= 1
+    #         topright = (tempr,c)
 
-        if grid[bottomright[0]][c] == 1: # bottomright in an obstacle
-            tempr = bottomright[0]
-            while grid[tempr][c] == 1 or grid[tempr][c] == 3:
-                tempr += 1 # move bottomright up until free
-            bottomright = (tempr,c)
-        elif grid[bottomright[0]][c] == 0 or grid[bottomright[0]][c] == 2: # topright can move up
-            tempr = bottomright[0]
-            while grid[tempr][c] == 0 or grid[tempr][c] == 2:
-                tempr -= 1 # move bottomright down until blocked
-            tempr += 1
-            bottomright = (tempr,c)
+    #     if grid[bottomright[0]][c] == 1: # bottomright in an obstacle
+    #         tempr = bottomright[0]
+    #         while grid[tempr][c] == 1 or grid[tempr][c] == 3:
+    #             tempr += 1 # move bottomright up until free
+    #         bottomright = (tempr,c)
+    #     elif grid[bottomright[0]][c] == 0 or grid[bottomright[0]][c] == 2: # topright can move up
+    #         tempr = bottomright[0]
+    #         while grid[tempr][c] == 0 or grid[tempr][c] == 2:
+    #             tempr -= 1 # move bottomright down until blocked
+    #         tempr += 1
+    #         bottomright = (tempr,c)
 
-        cell.append(topright)
-        cell.append(bottomright)
+    #     cell.append(topright)
+    #     cell.append(bottomright)
 
-        # make vertical lines of cell have values of 3 in grid
-        for row in range(cell[0][0], cell[1][0]+1):
-            grid[row][cell[0][1]] = 3
-        for row in range(cell[2][0], cell[3][0]+1):
-            grid[row][cell[2][1]] = 3
+    #     # make vertical lines of cell have values of 3 in grid
+    #     for row in range(cell[0][0], cell[1][0]+1):
+    #         grid[row][cell[0][1]] = 3
+    #     for row in range(cell[2][0], cell[3][0]+1):
+    #         grid[row][cell[2][1]] = 3
 
-        cells.append(cell)
-        print(cells)
-        incompleteCell = False
+    #     cells.append(cell)
+    #     print(cells)
+    #     incompleteCell = False
         
+
+        # OLD STUFF... SEE IF YOU STILL WANT
         # curr = cell[1] # bottom left corner
         # r = curr[0]
         # c = curr[1]
@@ -324,41 +326,38 @@ def TraverseCurrentCell(cellvertices, walls, startposition, Robot):
             print('Traversing Rightwards')
     # While cell is not complete... checked based on whether robot has reached all vertices of the cell
 
-    right = False
+    right = True
     while command != 0:
-        newpos = returnpath[-1]
-        addedpos = (newpos[0] + command, newpos[1])
+        currpos = returnpath[-1]
+        addedpos = (currpos[0] + command, currpos[1])
         returnpath.append(addedpos)
         currpos = returnpath[-1]
         print("Checkpoint vertices I need to traverse through include:", tempvertices)
         print("Current virtual position is:", currpos)
-        if right == True:
+        if right == False:
             if walls[currpos[0], currpos[1] + 1] == 0:
                 addedpos = (currpos[0], currpos[1] + 1)
                 returnpath.append(addedpos)
-                newpos = returnpath[-1]
+                currpos = returnpath[-1]
                 print('Traversing Rightwards, after running into a wall')
-                right = False
+                right = True
         if currpos in tempvertices:
             tempvertices.pop(tempvertices.index(currpos))
         if len(tempvertices) == 0:
             command = 0
-            break
-        print(currpos[0] + command)
-        print(command)
-        print(currpos[1])
         if walls[currpos[0] + command, currpos[1]] == 1:
             right = False
             if walls[currpos[0], currpos[1] + 1] == 0:
                 addedpos = (currpos[0], currpos[1] + 1)
                 returnpath.append(addedpos)
-                newpos = returnpath[-1]
+                currpos = returnpath[-1]
                 print('Traversing Rightwards, after running into a wall')
                 right = True
-            if walls[newpos[0] + command, newpos[1]] == 1:
+            if walls[currpos[0] + command, currpos[1]] == 1:
                 command *= -1
                 print('Reversing Traverse Direction')
             else:
+                right = True
                 print("Capable of continuining traverse direction, reaching end first before turning around")
         else:
             print("Continuining in Original Direction")
@@ -372,6 +371,7 @@ def TraverseCurrentCell(cellvertices, walls, startposition, Robot):
 #
 def main():
     startpos = (12, 26)
+    startpos  = (2, 6)
     path = [startpos]
     lines, cells = trapdecomp()
 
@@ -430,10 +430,9 @@ def main():
     # Loop continually.
     while True:
         # Show the current belief.  Also show the actual position.
-        visual.Show(bel, path, vertices, lines, cells, robot.Position())
+        visual.Show(bel, path, vertices, lines, robot.Position())
 
-        traversepath = TraverseCurrentCell([(23,20),(6,20),(9,23),(23,23)], walls, robot.Position(), robot)
-        print(traversepath)
+        traversepath = TraverseCurrentCell([(8,4),(1,4),(5,7),(2,7)], walls, robot.Position(), robot)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
@@ -443,7 +442,17 @@ def main():
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
             time.sleep(0.2)
-
+        traversepath = TraverseCurrentCell([(5,8),(2,8),(5,13),(2,13)], walls, robot.Position(), robot)
+        for node in traversepath:
+            drow = node[0] - robot.Position()[0]
+            dcol = node[1] - robot.Position()[1]
+            print(drow)
+            print(dcol)
+            path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
+            robot.Command(drow, dcol)
+            visual.Show(bel, path, vertices, lines, robot.Position())
+            time.sleep(0.2)
+        time.sleep(100)
         # Get the command key to determine the direction.
         # while True:
         #     key = input("Cmd (q=quit, i=up, m=down, j=left, k=right) ?")
