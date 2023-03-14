@@ -168,6 +168,22 @@ def PointInTriangle(p, t):
         return (aXb >= 0) and (bXc >= 0) and (cXa >= 0)
     else:
         return (aXb <= 0) and (bXc <= 0) and (cXa <= 0)
+    
+def PointInTriangleExclusive(p, t):
+    # Precompute the relative vectors.
+    (apx, apy) = (t[0][0]-p[0], t[0][1]-p[1])
+    (bpx, bpy) = (t[1][0]-p[0], t[1][1]-p[1])
+    (cpx, cpy) = (t[2][0]-p[0], t[2][1]-p[1])
+
+    # Precompute the cross products
+    aXb = apx * bpy - apy * bpx
+    bXc = bpx * cpy - bpy * cpx
+    cXa = cpx * apy - cpy * apx
+
+    if (aXb + bXc + cXa > 0):
+        return (aXb > 0) and (bXc > 0) and (cXa > 0)
+    else:
+        return (aXb < 0) and (bXc < 0) and (cXa < 0)
 
 def PointNearTriangle(d, p, t):
     # If inside, the point is considered "near".

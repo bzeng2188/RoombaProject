@@ -30,13 +30,17 @@ Nmax  = 1000
 #
 #   List of obstacles/objects as well as the start/goal.
 #
-(xmin, xmax) = (0, 14)
-(ymin, ymax) = (0, 10)
+(xmin, xmax) = (0, 28)
+(ymin, ymax) = (0, 20)
 
-triangles = ((( 2, 6), ( 3, 2), ( 4, 6)),
-             (( 6, 5), ( 7, 7), ( 8, 5)),
-             (( 6, 9), ( 8, 9), ( 8, 7)),
-             ((10, 3), (11, 6), (12, 3)))
+# triangles = ((( 2, 6), ( 3, 2), ( 4, 6)),
+#              (( 6, 5), ( 7, 7), ( 8, 5)),
+#              (( 6, 9), ( 8, 9), ( 8, 7)),
+#              ((10, 3), (11, 6), (12, 3)))
+
+triangles = ((( 5, 2), ( 3, 10), ( 7, 10)),
+             (( 9, 10), ( 13, 17), ( 23, 10)),
+             (( 19, 4), ( 21, 8), ( 26, 9)))
 
 (startx, starty) = ( 1, 5)
 (goalx,  goaly)  = (13, 5)
@@ -87,6 +91,15 @@ class Node:
             if PointInTriangle((self.x, self.y), triangle):
                 return False
         return True
+    
+    def onWall(self):
+        if (self.x == xmin or self.x == xmax or
+            self.y == ymin or self.y == ymax):
+            return True
+        for triangle in triangles:
+            if PointInTriangle((self.x, self.y), triangle) and (not PointInTriangleExclusive((self.x, self.y), triangle)):
+                return True
+        return False
 
     # Check the local planner - whether this connects to another node.
     def connectsTo(self, other):
@@ -104,6 +117,7 @@ class Node:
 class Visualization:
     def __init__(self):
         # Clear the current, or create a new figure.
+        plt.figure(figsize=(10, 7))
         plt.clf()
 
         # Create a new axes, enable the grid, and set axis limits.
@@ -112,6 +126,8 @@ class Visualization:
         plt.gca().axis('on')
         plt.gca().set_xlim(xmin, xmax)
         plt.gca().set_ylim(ymin, ymax)
+        plt.gca().set_xticks(range(0,29))
+        plt.gca().set_yticks(range(0,21))
         plt.gca().set_aspect('equal')
 
         # Show the triangles.
@@ -119,9 +135,9 @@ class Visualization:
             plt.plot((tr[0][0], tr[1][0], tr[2][0], tr[0][0]),
                      (tr[0][1], tr[1][1], tr[2][1], tr[0][1]),
                      'k-', linewidth=2)
-            
-        # plt.plot((2, 3, 4, 2),
-        #          (6, 2, 6, 6),
+                        
+        # plt.plot((2, 2.05, 2.1, 2),
+        #          (2.5, 2, 2.5, 2.5),
         #         'k-', linewidth=2)
 
         # Show.
@@ -130,10 +146,14 @@ class Visualization:
     def show(self, text = ''):
         # Show the plot.
         plt.pause(0.001)
+
+        self.drawLines()
+
         # If text is specified, print and wait for confirmation.
         if len(text)>0:
             input(text + ' (hit return to continue)')
 
+    
     def drawNode(self, node, *args, **kwargs):
         plt.plot(node.x, node.y, *args, **kwargs)
 
@@ -144,6 +164,51 @@ class Visualization:
     def drawPath(self, path, *args, **kwargs):
         for i in range(len(path)-1):
             self.drawEdge(path[i], path[i+1], *args, **kwargs)
+
+    def drawLines(self):
+        lines = []
+        vertices = []
+        for t in triangles:
+            for vertex in t:
+                vertices.append(Node(vertex[0], vertex[1]))
+
+
+        # calculating vertices for lines
+        for v in vertices:
+            lines.append(v)
+            dist = 1
+            for y in np.arange(v.y-dist,ymin-dist,-1*dist):
+                temp = Node(v.x,y)
+                if not temp.inFreespace():
+                    if temp.onWall():
+                        lines.append(temp)
+                        break
+                    break
+
+            for y in np.arange(v.y+dist,ymax+dist,dist):
+                temp = Node(v.x,y)
+                if not temp.inFreespace():
+                    if temp.onWall():
+                        lines.append(temp)
+                        break
+                    break
+
+        print(lines)
+
+        # # calculates lines
+        # for v in vert:
+        #     # move up from vertex
+        #     for row in range(v[0]-1,0,-1):
+        #         if walls[row,v[1]] == 1:
+        #             break
+        #         else:
+        #             lines.append((row,v[1]))
+        #     # move down from vertex
+        #     for row in range(v[0]+1,rows):
+        #         if walls[row,v[1]] == 1:
+        #             break
+        #         else:
+        #             lines.append((row,v[1]))
 
 
 ######################################################################
@@ -161,6 +226,7 @@ def rrt(startnode, goalnode, visual):
         newnode.parent = oldnode
         tree.append(newnode)
         visual.drawEdge(oldnode, newnode, color='g', linewidth=1)
+
         visual.show()
 
     # Loop - keep growing the tree.
@@ -226,42 +292,42 @@ def PostProcess(path):
 #
 def main():
     # Report the parameters.
-    print('Running with step size ', dstep, ' and up to ', Nmax, ' nodes.')
+    # print('Running with step size ', dstep, ' and up to ', Nmax, ' nodes.')
 
     # Create the figure.
     visual = Visualization()
 
     # Create the start/goal nodes.
-    startnode = Node(startx, starty)
-    goalnode  = Node(goalx,  goaly)
+    # startnode = Node(startx, starty)
+    # goalnode  = Node(goalx,  goaly)
 
-    # Show the start/goal nodes.
-    visual.drawNode(startnode, color='r', marker='o')
-    visual.drawNode(goalnode,  color='r', marker='o')
+    # # Show the start/goal nodes.
+    # visual.drawNode(startnode, color='r', marker='o')
+    # visual.drawNode(goalnode,  color='r', marker='o')
     visual.show("Showing basic world")
 
 
-    # Run the RRT planner.
-    print("Running RRT...")
-    (path, N) = rrt(startnode, goalnode, visual)
+    # # Run the RRT planner.
+    # print("Running RRT...")
+    # (path, N) = rrt(startnode, goalnode, visual)
 
-    # If unable to connect, show what we have.
-    if not path:
-        visual.show("UNABLE TO FIND A PATH")
-        return
+    # # If unable to connect, show what we have.
+    # if not path:
+    #     visual.show("UNABLE TO FIND A PATH")
+    #     return
 
-    # Show the path.
-    print("PATH found after %d nodes" % N)
-    visual.drawPath(path, color='r', linewidth=2)
-    visual.show("Showing the raw path")
+    # # Show the path.
+    # print("PATH found after %d nodes" % N)
+    # visual.drawPath(path, color='r', linewidth=2)
+    # visual.show("Showing the raw path")
 
 
-    # Post Process the path.
-    PostProcess(path)
+    # # Post Process the path.
+    # PostProcess(path)
 
-    # Show the post-processed path.
-    visual.drawPath(path, color='b', linewidth=2)
-    visual.show("Showing the post-processed path")
+    # # Show the post-processed path.
+    # visual.drawPath(path, color='b', linewidth=2)
+    # visual.show("Showing the post-processed path")
 
 
 if __name__== "__main__":
