@@ -292,8 +292,11 @@ def trapdecomp():
     return lines, cells
 
 
-def TraverseCurrentCell(cellvertices, walls, startposition, Robot):
-    
+def TraverseCurrentCell(cellvertices, walls, startposition, right):
+
+    # Up means that up = 1, down means up = -1
+    # Right means that right = 1, left means right = -1
+
     # Traverse to corner of a cell
     returnpath = Dijkstra(startposition, cellvertices[0], walls)
     
@@ -335,8 +338,8 @@ def TraverseCurrentCell(cellvertices, walls, startposition, Robot):
         #print("Checkpoint vertices I need to traverse through include:", tempvertices)
         #print("Current virtual position is:", currpos)
         if attemptright == True:
-            if walls[currpos[0], currpos[1] + 1] == 0:
-                addedpos = (currpos[0], currpos[1] + 1)
+            if walls[currpos[0], currpos[1] + (1 * right)] == 0:
+                addedpos = (currpos[0], currpos[1] + (1 * right))
                 returnpath.append(addedpos)
                 currpos = returnpath[-1]
                 #print('Traversing Rightwards, after running into a wall')
@@ -347,8 +350,8 @@ def TraverseCurrentCell(cellvertices, walls, startposition, Robot):
             command = 0
         if walls[currpos[0] + command, currpos[1]] == 1:
             attemptright = True
-            if walls[currpos[0], currpos[1] + 1] == 0:
-                addedpos = (currpos[0], currpos[1] + 1)
+            if walls[currpos[0], currpos[1] + (1 * right)] == 0:
+                addedpos = (currpos[0], currpos[1] + (1 * right))
                 returnpath.append(addedpos)
                 currpos = returnpath[-1]
                 #print('Traversing Rightwards, after running into a wall')
@@ -449,7 +452,7 @@ def main():
 
         timedelay = 0
 
-        traversepath = TraverseCurrentCell([(8,4),(1,4),(5,7),(1,7)], walls, robot.Position(), robot)
+        traversepath = TraverseCurrentCell([(1,4),(8,4),(5,7),(1,7)], walls, robot.Position(), 1)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
@@ -460,7 +463,7 @@ def main():
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
             time.sleep(timedelay)
-        traversepath = TraverseCurrentCell([(5,8),(1,8),(5,13),(1,13)], walls, robot.Position(), robot)
+        traversepath = TraverseCurrentCell([(5,8),(1,8),(5,13),(1,13)], walls, robot.Position(), 1)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
@@ -471,7 +474,7 @@ def main():
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
             time.sleep(timedelay)
-        traversepath = TraverseCurrentCell([(5,14),(1,14),(1,17),(8,17)], walls, robot.Position(), robot)
+        traversepath = TraverseCurrentCell([(1,14),(5,14),(1,17),(8,17)], walls, robot.Position(), 1)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
@@ -482,7 +485,7 @@ def main():
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
             time.sleep(timedelay)
-        traversepath = TraverseCurrentCell([(1,18),(23,18)], walls, robot.Position(), robot)
+        traversepath = TraverseCurrentCell([(1,18),(23,18)], walls, robot.Position(), 1)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
@@ -493,7 +496,7 @@ def main():
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
             time.sleep(timedelay)
-        traversepath = TraverseCurrentCell([(3,19),(1,19),(1,29),(3,29)], walls, robot.Position(), robot)
+        traversepath = TraverseCurrentCell([(23,19),(5,19),(9,23),(23,23)], walls, robot.Position(), 1)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
@@ -504,7 +507,7 @@ def main():
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
             time.sleep(timedelay)
-        traversepath = TraverseCurrentCell([(13,30),(1,30),(1,38),(13,38)], walls, robot.Position(), robot)
+        traversepath = TraverseCurrentCell([(10,24),(23,24),(8,26),(17,26)], walls, robot.Position(), 1)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
@@ -515,7 +518,7 @@ def main():
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
             time.sleep(timedelay)
-        traversepath = TraverseCurrentCell([(23,39),(1,39),(1,47),(23,47)], walls, robot.Position(), robot)
+        traversepath = TraverseCurrentCell([(19,26),(23,26),(19,33),(23,33)], walls, robot.Position(), 1)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
@@ -526,7 +529,7 @@ def main():
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
             time.sleep(timedelay)
-        traversepath = TraverseCurrentCell([(23,34),(19,34),(15,38),(23,38)], walls, robot.Position(), robot)
+        traversepath = TraverseCurrentCell([(19,34),(23,34),(15,38),(23,38)], walls, robot.Position(), 1)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
@@ -537,7 +540,7 @@ def main():
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
             time.sleep(timedelay)
-        traversepath = TraverseCurrentCell([(23,26),(19,26),(19,33),(23,33)], walls, robot.Position(), robot)
+        traversepath = TraverseCurrentCell([(23,47),(23,39),(1,39),(1,47)], walls, robot.Position(), -1)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
@@ -548,7 +551,7 @@ def main():
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
             time.sleep(timedelay)
-        traversepath = TraverseCurrentCell([(23,24),(10,24),(9,25),(23,25)], walls, robot.Position(), robot)
+        traversepath = TraverseCurrentCell([(1,38),(13,30),(1,30),(13,38)], walls, robot.Position(), -1)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
@@ -559,7 +562,7 @@ def main():
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
             time.sleep(timedelay)
-        traversepath = TraverseCurrentCell([(17,26),(8,26),(5,29),(14,29)], walls, robot.Position(), robot)
+        traversepath = TraverseCurrentCell([(16,27),(8,27),(5,29),(14,29)], walls, robot.Position(), 1)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
@@ -570,7 +573,7 @@ def main():
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
             time.sleep(timedelay)
-        traversepath = TraverseCurrentCell([(23,19),(5,19),(9,23),(23,23)], walls, robot.Position(), robot)
+        traversepath = TraverseCurrentCell([(3,29),(1,19),(1,29),(3,19)], walls, robot.Position(), -1)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
@@ -581,7 +584,7 @@ def main():
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
             time.sleep(timedelay)
-        traversepath = TraverseCurrentCell([(20,13),(10,13),(23,17),(10,17)], walls, robot.Position(), robot)
+        traversepath = TraverseCurrentCell([(10,17),(20,13),(10,13),(23,17)], walls, robot.Position(), -1)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
@@ -592,7 +595,7 @@ def main():
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
             time.sleep(timedelay)
-        traversepath = TraverseCurrentCell([(23,4),(10,4),(10,12),(21,12)], walls, robot.Position(), robot)
+        traversepath = TraverseCurrentCell([(21,12),(23,4),(10,4),(10,12)], walls, robot.Position(), -1)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
@@ -603,7 +606,7 @@ def main():
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
             time.sleep(timedelay)
-        traversepath = TraverseCurrentCell([(23,1),(1,1),(1,3),(23,3)], walls, robot.Position(), robot)
+        traversepath = TraverseCurrentCell([(1,3),(23,1),(1,1),(23,3)], walls, robot.Position(), -1)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
