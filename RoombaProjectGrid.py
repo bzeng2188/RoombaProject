@@ -302,7 +302,7 @@ def TraverseCurrentCell(cellvertices, walls, startposition, Robot):
         print("ERROR, POSITION IS NOT CORRECT, I AM NOT AT THE CORNER OF A CELL")
     
     # If command = 1, go up. If command = -1, go down. If command = 0, cell complete. 
-    print("Starting at the location", returnpath[-1])
+    #print("Starting at the location", returnpath[-1])
     tempvertices = []
     for vertex in cellvertices:
             tempvertices.append(vertex)
@@ -310,55 +310,69 @@ def TraverseCurrentCell(cellvertices, walls, startposition, Robot):
         tempvertices.pop(tempvertices.index(returnpath[-1]))
     repeat = True
     while repeat:
-        print("Getting stuck!!!!")
+        #print("Getting stuck!!!!")
         newpos = returnpath[-1]
         if walls[newpos[0] + 1, newpos[1]] == 1:
             command = -1
-            print('Traversing Downwards')
+            #print('Traversing Downwards')
             repeat = False
         elif walls[newpos[0] - 1, newpos[1]] == 1:
             command = 1
-            print('Traversing Upwards')
+            #print('Traversing Upwards')
             repeat = False
         elif walls[newpos[0], newpos[1] - 1] == 1:
             addedpos = (newpos[0], newpos[1] + 1)
             returnpath.append(addedpos)
-            print('Traversing Rightwards')
+            #print('Traversing Rightwards')
     # While cell is not complete... checked based on whether robot has reached all vertices of the cell
 
-    right = True
+    attemptright = False
     while command != 0:
         currpos = returnpath[-1]
         addedpos = (currpos[0] + command, currpos[1])
         returnpath.append(addedpos)
         currpos = returnpath[-1]
-        print("Checkpoint vertices I need to traverse through include:", tempvertices)
-        print("Current virtual position is:", currpos)
-        if right == False:
+        #print("Checkpoint vertices I need to traverse through include:", tempvertices)
+        #print("Current virtual position is:", currpos)
+        if attemptright == True:
             if walls[currpos[0], currpos[1] + 1] == 0:
                 addedpos = (currpos[0], currpos[1] + 1)
                 returnpath.append(addedpos)
                 currpos = returnpath[-1]
-                print('Traversing Rightwards, after running into a wall')
-                right = True
+                #print('Traversing Rightwards, after running into a wall')
+                attemptright = False
         if currpos in tempvertices:
             tempvertices.pop(tempvertices.index(currpos))
         if len(tempvertices) == 0:
             command = 0
         if walls[currpos[0] + command, currpos[1]] == 1:
-            right = False
+            attemptright = True
             if walls[currpos[0], currpos[1] + 1] == 0:
                 addedpos = (currpos[0], currpos[1] + 1)
                 returnpath.append(addedpos)
                 currpos = returnpath[-1]
-                print('Traversing Rightwards, after running into a wall')
-                right = True
+                #print('Traversing Rightwards, after running into a wall')
+                attemptright = False
+                if currpos in tempvertices:
+                    tempvertices.pop(tempvertices.index(currpos))
+                if len(tempvertices) == 0:
+                    command = 0
+                if walls[currpos[0] + command, currpos[1]] == 0:
+                    addedpos = (currpos[0] + command, currpos[1])
+                    returnpath.append(addedpos)
+                    currpos = returnpath[-1]
+                    #print('Traversing Rightwards, after running into a wall')
+                    attemptright = False
+                if currpos in tempvertices:
+                    tempvertices.pop(tempvertices.index(currpos))
+                if len(tempvertices) == 0:
+                    command = 0
             if walls[currpos[0] + command, currpos[1]] == 1:
                 command *= -1
-                print('Reversing Traverse Direction')
+                #print('Reversing Traverse Direction')
             else:
-                right = True
-                print("Capable of continuining traverse direction, reaching end first before turning around")
+                attemptright = False
+                #print("Capable of continuining traverse direction, reaching end first before turning around")
         else:
             print("Continuining in Original Direction")
     
@@ -426,33 +440,181 @@ def main():
     bel = 1.0 - walls
     bel = (1.0/np.sum(bel)) * bel
 
-
+    time.sleep(15)
     # Loop continually.
+    repeatedsteps = 0
     while True:
         # Show the current belief.  Also show the actual position.
         visual.Show(bel, path, vertices, lines, robot.Position())
 
-        traversepath = TraverseCurrentCell([(8,4),(1,4),(5,7),(2,7)], walls, robot.Position(), robot)
+        timedelay = 0
+
+        traversepath = TraverseCurrentCell([(8,4),(1,4),(5,7),(1,7)], walls, robot.Position(), robot)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
-            print(drow)
-            print(dcol)
+            print(node)
+            if node in path:
+                repeatedsteps += 1
             path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
-            time.sleep(0.2)
-        traversepath = TraverseCurrentCell([(5,8),(2,8),(5,13),(2,13)], walls, robot.Position(), robot)
+            time.sleep(timedelay)
+        traversepath = TraverseCurrentCell([(5,8),(1,8),(5,13),(1,13)], walls, robot.Position(), robot)
         for node in traversepath:
             drow = node[0] - robot.Position()[0]
             dcol = node[1] - robot.Position()[1]
-            print(drow)
-            print(dcol)
+            print(node)
+            if node in path:
+                repeatedsteps += 1
             path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
             robot.Command(drow, dcol)
             visual.Show(bel, path, vertices, lines, robot.Position())
-            time.sleep(0.2)
-        time.sleep(100)
+            time.sleep(timedelay)
+        traversepath = TraverseCurrentCell([(5,14),(1,14),(1,17),(8,17)], walls, robot.Position(), robot)
+        for node in traversepath:
+            drow = node[0] - robot.Position()[0]
+            dcol = node[1] - robot.Position()[1]
+            print(node)
+            if node in path:
+                repeatedsteps += 1
+            path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
+            robot.Command(drow, dcol)
+            visual.Show(bel, path, vertices, lines, robot.Position())
+            time.sleep(timedelay)
+        traversepath = TraverseCurrentCell([(1,18),(23,18)], walls, robot.Position(), robot)
+        for node in traversepath:
+            drow = node[0] - robot.Position()[0]
+            dcol = node[1] - robot.Position()[1]
+            print(node)
+            if node in path:
+                repeatedsteps += 1
+            path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
+            robot.Command(drow, dcol)
+            visual.Show(bel, path, vertices, lines, robot.Position())
+            time.sleep(timedelay)
+        traversepath = TraverseCurrentCell([(3,19),(1,19),(1,29),(3,29)], walls, robot.Position(), robot)
+        for node in traversepath:
+            drow = node[0] - robot.Position()[0]
+            dcol = node[1] - robot.Position()[1]
+            print(node)
+            if node in path:
+                repeatedsteps += 1
+            path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
+            robot.Command(drow, dcol)
+            visual.Show(bel, path, vertices, lines, robot.Position())
+            time.sleep(timedelay)
+        traversepath = TraverseCurrentCell([(13,30),(1,30),(1,38),(13,38)], walls, robot.Position(), robot)
+        for node in traversepath:
+            drow = node[0] - robot.Position()[0]
+            dcol = node[1] - robot.Position()[1]
+            print(node)
+            if node in path:
+                repeatedsteps += 1
+            path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
+            robot.Command(drow, dcol)
+            visual.Show(bel, path, vertices, lines, robot.Position())
+            time.sleep(timedelay)
+        traversepath = TraverseCurrentCell([(23,39),(1,39),(1,47),(23,47)], walls, robot.Position(), robot)
+        for node in traversepath:
+            drow = node[0] - robot.Position()[0]
+            dcol = node[1] - robot.Position()[1]
+            print(node)
+            if node in path:
+                repeatedsteps += 1
+            path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
+            robot.Command(drow, dcol)
+            visual.Show(bel, path, vertices, lines, robot.Position())
+            time.sleep(timedelay)
+        traversepath = TraverseCurrentCell([(23,34),(19,34),(15,38),(23,38)], walls, robot.Position(), robot)
+        for node in traversepath:
+            drow = node[0] - robot.Position()[0]
+            dcol = node[1] - robot.Position()[1]
+            print(node)
+            if node in path:
+                repeatedsteps += 1
+            path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
+            robot.Command(drow, dcol)
+            visual.Show(bel, path, vertices, lines, robot.Position())
+            time.sleep(timedelay)
+        traversepath = TraverseCurrentCell([(23,26),(19,26),(19,33),(23,33)], walls, robot.Position(), robot)
+        for node in traversepath:
+            drow = node[0] - robot.Position()[0]
+            dcol = node[1] - robot.Position()[1]
+            print(node)
+            if node in path:
+                repeatedsteps += 1
+            path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
+            robot.Command(drow, dcol)
+            visual.Show(bel, path, vertices, lines, robot.Position())
+            time.sleep(timedelay)
+        traversepath = TraverseCurrentCell([(23,24),(10,24),(9,25),(23,25)], walls, robot.Position(), robot)
+        for node in traversepath:
+            drow = node[0] - robot.Position()[0]
+            dcol = node[1] - robot.Position()[1]
+            print(node)
+            if node in path:
+                repeatedsteps += 1
+            path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
+            robot.Command(drow, dcol)
+            visual.Show(bel, path, vertices, lines, robot.Position())
+            time.sleep(timedelay)
+        traversepath = TraverseCurrentCell([(17,26),(8,26),(5,29),(14,29)], walls, robot.Position(), robot)
+        for node in traversepath:
+            drow = node[0] - robot.Position()[0]
+            dcol = node[1] - robot.Position()[1]
+            print(node)
+            if node in path:
+                repeatedsteps += 1
+            path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
+            robot.Command(drow, dcol)
+            visual.Show(bel, path, vertices, lines, robot.Position())
+            time.sleep(timedelay)
+        traversepath = TraverseCurrentCell([(23,19),(5,19),(9,23),(23,23)], walls, robot.Position(), robot)
+        for node in traversepath:
+            drow = node[0] - robot.Position()[0]
+            dcol = node[1] - robot.Position()[1]
+            print(node)
+            if node in path:
+                repeatedsteps += 1
+            path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
+            robot.Command(drow, dcol)
+            visual.Show(bel, path, vertices, lines, robot.Position())
+            time.sleep(timedelay)
+        traversepath = TraverseCurrentCell([(20,13),(10,13),(23,17),(10,17)], walls, robot.Position(), robot)
+        for node in traversepath:
+            drow = node[0] - robot.Position()[0]
+            dcol = node[1] - robot.Position()[1]
+            print(node)
+            if node in path:
+                repeatedsteps += 1
+            path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
+            robot.Command(drow, dcol)
+            visual.Show(bel, path, vertices, lines, robot.Position())
+            time.sleep(timedelay)
+        traversepath = TraverseCurrentCell([(23,4),(10,4),(10,12),(21,12)], walls, robot.Position(), robot)
+        for node in traversepath:
+            drow = node[0] - robot.Position()[0]
+            dcol = node[1] - robot.Position()[1]
+            print(node)
+            if node in path:
+                repeatedsteps += 1
+            path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
+            robot.Command(drow, dcol)
+            visual.Show(bel, path, vertices, lines, robot.Position())
+            time.sleep(timedelay)
+        traversepath = TraverseCurrentCell([(23,1),(1,1),(1,3),(23,3)], walls, robot.Position(), robot)
+        for node in traversepath:
+            drow = node[0] - robot.Position()[0]
+            dcol = node[1] - robot.Position()[1]
+            print(node)
+            if node in path:
+                repeatedsteps += 1
+            path.append((robot.Position()[0] + drow, robot.Position()[1] + dcol))
+            robot.Command(drow, dcol)
+            visual.Show(bel, path, vertices, lines, robot.Position())
+            time.sleep(timedelay)
+        time.sleep(10)
         # Get the command key to determine the direction.
         # while True:
         #     key = input("Cmd (q=quit, i=up, m=down, j=left, k=right) ?")
@@ -486,6 +648,8 @@ def main():
         bel = updateBelief(bel, probRight, robot.Sensor( 0,  1))
         bel = updateBelief(bel, probDown,  robot.Sensor( 1,  0))
         bel = updateBelief(bel, probLeft,  robot.Sensor( 0, -1))
+
+        print("repeated steps:", repeatedsteps)
 
 if __name__== "__main__":
     main()
